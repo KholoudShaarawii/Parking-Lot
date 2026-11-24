@@ -1,92 +1,67 @@
 package ex.parking;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ParkingLot {
-    private List<ParkingLevel> levels = new ArrayList<>();
-    private FeeCalculator feeCalculator = new FeeCalculator();
+    //private final List<ParkingLevel> levels = new ArrayList<>(); //empty list , levels ref refers to levels, no sonst it is initialized already
+    private final List<ParkingLevel> levels; //ref only without an obj and list
+    private final FeeCalculator feeCalculator;
 
-    public ParkingLot(List<ParkingLevel> levels) {
+    public ParkingLot(List<ParkingLevel> levels, FeeCalculator feeCalculator) {
         this.levels = levels;
+        this.feeCalculator = feeCalculator;
     }
 
-    public void parkVehicle(Vehicle vehicle) { //Parks a vehicle in a suitable available spot
-        ParkingSpot spot;
-        //levels.findAvailableSpot(vehicle); // Error
+    public ParkingSpot findBestAvailableSpot(Vehicle vehicle) { //why vehicle
+        // Iterate through all parking levels.
+        ParkingSpot bestSpot = null;
         for (ParkingLevel level : levels) {
+
             ParkingSpot availableSpot = level.findAvailableSpot(vehicle);
-            if (availableSpot != null) {
-                availableSpot.park(vehicle);
-                return;
+            // Check if a suitable spot was found.
+
+            // Skip this level if no suitable spot is found.
+            if (availableSpot == null) {
+                continue;
+            }
+
+            if (bestSpot == null) { //the first value
+                bestSpot = availableSpot;
+            } else if (availableSpot.getSize().ordinal() < bestSpot.getSize().ordinal()) { //                //    // Compare the current spot with the best spot found so far.
+                bestSpot = availableSpot;
             }
         }
-        throw new IllegalStateException("No available parking spot");
-
+        if (bestSpot == null) { //The exception will only be thrown if no suitable parking spot is found after searching all levels.
+            throw new IllegalStateException("No available parking spot");
+        }
+        return bestSpot;
     }
 
-    //try to write happy and unhappy path
+    public ParkingTicket parkVehicle(Vehicle vehicle, LocalDateTime entryTime) {
+        ParkingSpot bestSpot = findBestAvailableSpot(vehicle);
+        if (bestSpot.park(vehicle)) {
+            ParkingTicket ticket = new ParkingTicket(entryTime, bestSpot, vehicle.getType());
+            return ticket;
+        }
+        throw new IllegalStateException("Parking failed"); // We throw an exception because this method returns a ParkingTicket, not a boolean. Returning false would cause a compile-time error.    }
+    }
+
     public double unparkVehicle(ParkingTicket ticket) {
-     //   ParkingSpot spot;
-        LocalDateTime exitTime = LocalDateTime.now();
-        ticket.complete(exitTime); //= ticket.complete(LocalDateTime.now());
         if (ticket == null) { //to secure the input
             throw new IllegalArgumentException("Ticket cannot be null");
         }
-        ParkingSpot spot = ticket.getSpot();
-
-        if (spot == null || spot.isAvailable()) {
-            throw new IllegalStateException("Vehicle is not parked");
-        }
-
-
-        //  ticket.complete(ticket.exitTime); = ticket.complete(null);
-
-        ticket.complete(LocalDateTime.now());
-
-        // Calculate parking fee
+         ticket.recordExit();
         double fee = feeCalculator.calculateFee(ticket);
+        // ParkingSpot spot = ticket.getParkingSpot(); //Get the parking spot associated with this ticket, not any other spot.
 
-        // Free the parking spot
-        if (!spot.vacate()) {
-            throw new IllegalStateException("Failed to vacate spot");
+        if (!ticket.getParkingSpot().vacate()) {
+            throw new IllegalStateException("Failed to vacate parking spot");
         }
 
         return fee;
-    }
 
-    public int getAvailableSpots() {
-        int count = 0;
-
-        for (ParkingLevel level : levels) {
-            for (ParkingSpot spot : level.getSpots()) {
-
-                if (spot.isAvailable()) {
-                    count++;
-                }
-            }
-        }
-
-        return count;
     }
 }
-
-/* ParkingLot
-   Responsibilities:
-  1. Manage the parking levels.
-  2. Coordinate vehicle parking and unparking.
-  3. Find a suitable available spot across the levels.
-  4. Issue a parking ticket after successful parking.
-  5. Coordinate fee calculation when a vehicle exits.
-  6. Release the occupied spot when a vehicle exits.
-  7. Provide the total number of available spots.
-
-  Note:
-  ParkingLot coordinates operations and delegates
-  specific tasks to the appropriate classes.
- */
-
-
-
-

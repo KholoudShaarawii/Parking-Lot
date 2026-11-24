@@ -1,33 +1,20 @@
 package ex.parking;
 
 public class Vehicle {
-    private String licensePlate;
+    private final String licensePlate; //final is suitable because the field's value will not change throughout the object's lifetime in the system. It does not guarantee non-null or uniqueness.
     private VehicleType type;
 
-    public Vehicle(VehicleType type) {
-        this.type = type;
-    }
-
     public Vehicle(String licensePlate, VehicleType type) {
-        if (licensePlate==null || licensePlate.isBlank()) {
-            throw new IllegalArgumentException();
-        }
         this.licensePlate = licensePlate;
-        if (type == null ){
-            throw new IllegalArgumentException();
-        }
-
         this.type = type;
     }
 
-    public String getLicensePlate() {
-        return licensePlate;
+    public Vehicle(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
 
     public VehicleType getType() {
         return type;
     }
-
 }
 
-// it's because licensePlate is a String, while type is an enum. Therefore, I can't pass an empty String ("") as a vehicle type so i cant use isblank method

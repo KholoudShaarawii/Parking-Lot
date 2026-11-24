@@ -3,44 +3,37 @@ package ex.parking;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParkingLevel { //20 spot for each level (2)
-    private int levelNumber;
-    private List<ParkingSpot> spots = new ArrayList<>();
+//Filtering + selection
+public class ParkingLevel { //It represents a single floor containing a collection of parking spots.
+    private final List<ParkingSpot> parkingSpots ; //It stores all parking spots on the floor, whether they are available or occupied.
 
-    public ParkingLevel(int levelNumber, List<ParkingSpot> spots) {
-        this.levelNumber = levelNumber;
-        this.spots = spots;
+    public ParkingLevel(List<ParkingSpot> parkingSpots) {
+        this.parkingSpots = parkingSpots;
     }
 
     public ParkingSpot findAvailableSpot(Vehicle vehicle) {
-        ParkingSpot bestSpot = null; //"أنا لسه مختارتش أي Spot، ولما ألاقي واحد مناسب هحتفظ بيه هنا."
-        for (ParkingSpot spot : spots) {
-            if (spot.isAvailable() && spot.canFit(vehicle)) {//not using park method because Checking ≠ Performing an Action,in this method we already paked the car
-                if (bestSpot == null) {  //I haven't looped through the remaining spots yet. //Best So Far
-                    // after selecting the best spot , it will Repeat The for each again
-                    bestSpot = spot;
-                } else if (spot.getSize().ordinal() < bestSpot.getSize().ordinal()) {
-                    bestSpot = spot;
-                }
+        ParkingSpot bestSpot = null;
+
+        List<ParkingSpot> availableSpots = new ArrayList<>(); //We create it inside the method to collect only the available parking spots that are suitable for the requested vehicle.
+        for (ParkingSpot spots : parkingSpots) {
+            if (spots.checkAvailability() && spots.canFit(vehicle)) {
+                availableSpots.add(spots);
             }
         }
-        return bestSpot; //after for each
+        //return availableSpots;
+        for (ParkingSpot spot : availableSpots) { //spots? //Best So Far
+//When I need to compare the current item with the best previous item → I need to remember the best so far.
+            // ParkingSpot bestSpot = null; //We need `bestSpot` to retain its value throughout the loop.
 
-    }
-
-    public List<ParkingSpot> getAvailableSpots() {
-        List<ParkingSpot> availableSpots = new ArrayList<>();
-        for (ParkingSpot spot : spots) {
-            if (spot.isAvailable()) {
-                availableSpots.add(spot);
+            if (bestSpot == null) {
+                bestSpot = spot;
+            } else if (spot.getSize().ordinal() < bestSpot.getSize().ordinal()) { //ordinal
+                bestSpot = spot;
             }
         }
-        return availableSpots;
-
+        return bestSpot;
+        //There is no data to work with yet until I initialize the object using the constructor.
     }
 
-    public List<ParkingSpot> getSpots() {
-        return spots;
-    }
 }
 

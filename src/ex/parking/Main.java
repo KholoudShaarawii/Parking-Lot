@@ -1,76 +1,85 @@
 
 package ex.parking;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
+        //Spots -> levels -> ParkingLot -> issue a Ticket -> End the Parking Session
+        // levels here ,System Configuration  //VehicleType type = new VehicleType(); // Compile Error
 
-        // 1. Create Parking Levels
-        List<ParkingLevel> levels = new ArrayList<>();
+        //System Setup / System Configuration،
+        System.out.println("Parking System Started");
 
-        int spotId = 1;
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter vehicle type: ");
+        String input = scanner.nextLine();
+        System.out.println("You entered: " + input);
 
-        for (int levelNumber = 1; levelNumber <= 5; levelNumber++) {
+        List<ParkingLevel> parkingLevels = new ArrayList<>(); // for all levels
+
+        for (int level = 1; level <= 5; level++) {
 
             List<ParkingSpot> spots = new ArrayList<>();
 
-            // 8 Small Spots
-            for (int i = 0; i < 8; i++) {
-                spots.add(new ParkingSpot(spotId++, SpotSize.SMALL));
+            for (int spot = 1; spot <= 20; spot++) { // 5 small , 10 medium , 5 large
+                SpotSize size;
+                if (spot <= 5) {
+                    size = SpotSize.SMALL;
+                } else if (spot <= 15) {
+                    size = SpotSize.MEDIUM;
+                } else {
+                    size = SpotSize.LARGE;
+                }
+                ParkingSpot parkingSpot = new ParkingSpot(size);
+                spots.add(parkingSpot);
             }
-
-            // 1 Medium and 1 Large on Level 1
-            if (levelNumber == 1) {
-                spots.add(new ParkingSpot(spotId++, SpotSize.MEDIUM));
-                spots.add(new ParkingSpot(spotId++, SpotSize.LARGE));
-            } else {
-                spots.add(new ParkingSpot(spotId++, SpotSize.SMALL));
-                spots.add(new ParkingSpot(spotId++, SpotSize.SMALL));
-            }
-
-            levels.add(new ParkingLevel(levelNumber, spots));
+            ParkingLevel parkingLevel = new ParkingLevel(spots);
+            parkingLevels.add(parkingLevel);
         }
 
-        // 2. Create Parking Lot
-        ParkingLot parkingLot = new ParkingLot(levels);
+//Object Wiring
+        FeeCalculator feeCalc = new FeeCalculator();
 
-        // 3. Create Vehicles
-        Vehicle motorcycle = new Vehicle("M-001", VehicleType.MOTORCYCLE);
-        Vehicle car = new Vehicle("C-001", VehicleType.CAR);
-        Vehicle truck = new Vehicle("T-001", VehicleType.TRUCK);
-        Vehicle secondTruck = new Vehicle("T-002", VehicleType.TRUCK);
+        ParkingLot parkingLot = new ParkingLot(parkingLevels, feeCalc); //ParkingLot parkingLot = new ParkingLot(feeCalc,parkingLevels);
+        // FeeCalculator feeCalc = new FeeCalculator(); Xxx
+        VehicleType vehicleType = VehicleType.valueOf(input.toUpperCase());
 
-        // 4. Check Initial Available Spots
-        System.out.println("Available spots before parking: "
-                + parkingLot.getAvailableSpots());
+        Vehicle vehicle = new Vehicle("ABC123", vehicleType);
 
-        // 5. Park Vehicles
-        parkingLot.parkVehicle(motorcycle);
-        System.out.println("Motorcycle parked successfully");
+        ParkingSpot spot = parkingLot.findBestAvailableSpot(vehicle);
+        System.out.println("Best available spot found" + " " + spot.getSize()); //why getsize
 
-        parkingLot.parkVehicle(car);
-        System.out.println("Car parked successfully");
+        LocalDateTime entryTime = LocalDateTime.of(2026, 11, 23 , 10, 0);
 
-        parkingLot.parkVehicle(truck);
-        System.out.println("Truck parked successfully");
+      //  ParkingTicket ticket = new ParkingTicket(entryTime, spot, vehicleType);
 
-        // 6. Check Available Spots After Parking
-        System.out.println("Available spots after parking: "
-                + parkingLot.getAvailableSpots());
 
-        // 7. Test No Suitable Spot
-        try {
-            parkingLot.parkVehicle(secondTruck);
-            System.out.println("Second truck parked successfully");
-        } catch (IllegalStateException e) {
-            System.out.println("Parking failed: " + e.getMessage());
-        }
+        ParkingTicket parkingTicket = parkingLot.parkVehicle(vehicle, entryTime);
+        System.out.println("Vehicle parked successfully");
+        System.out.println("Parking ticket issued");
 
-        // 8. Final Available Spots
-        System.out.println("Final available spots: "
-                + parkingLot.getAvailableSpots());
+        System.out.println("After a period of time");
+
+       // parkingTicket.recordExit(); executed one
+
+        ParkingSpot parkedSpot = parkingTicket.getParkingSpot();
+        // System.out.println("parked spot is" + parkedSpot);xxxx
+        System.out.println("parked spot is" + " " + parkedSpot.getSize());
+
+        double fee = parkingLot.unparkVehicle(parkingTicket);
+
+        System.out.println("Parking Fee: " + fee);
+
+        Duration duration = parkingTicket.getParkingDuration();
+        System.out.println("Parking Duration: " + duration);
+
+        //double fee2 = parkingLot.unparkVehicle(parkingTicket);
+
     }
 }
