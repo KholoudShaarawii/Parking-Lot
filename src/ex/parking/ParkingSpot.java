@@ -13,25 +13,14 @@ public class ParkingSpot {
         this.vehicleType = vehicleType;
         this.size = size;
     }
-/*Difference Between a Boolean Field and a Boolean Method:
-
- first method: boolean method + boolean field
- Second method: boolean method without boolean field
-
- | Question to Ask Yourself                           | Decision                                        |
-| -------------------------------------------------- | ----------------------------------------------- |
-| Do I need to store a separate state?               | Use a `boolean field`.                          |
-| Can I determine the answer from an existing field? | Use a `boolean method` to calculate the result. |
-| Do I have a field and want to return its value?    | Use a method to read the field.                 |
-  */
 
     public boolean checkAvailability() {
         return parkedVehicle == null;
     }
 
-    public boolean canFit(Vehicle vehicle) { //The enum defines the three possible vehicle types in the system, but it doesn't specify the type of each individual vehicle.
-        //if vs else if vs no return
-        if (vehicle.getType() == VehicleType.TRUCK) { //The data types must be compatible when using the == operator.
+    public boolean canFit(Vehicle vehicle) {
+
+        if (vehicle.getType() == VehicleType.TRUCK) {
             return size == SpotSize.LARGE;
         }
         if (vehicle.getType() == VehicleType.CAR) {
@@ -45,8 +34,7 @@ public class ParkingSpot {
 
     public boolean park(Vehicle vehicle) {
         if (checkAvailability() && canFit(vehicle)) {
-            //return parkedVehicle != null; //Here, we check the field's state without changing it.
-            // return parkedVehicle = vehicle;
+
             parkedVehicle = vehicle;
             return true;
         }

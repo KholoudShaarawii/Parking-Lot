@@ -15,22 +15,27 @@ public class ParkingLot {
         this.feeCalculator = feeCalculator;
     }
 
-    public ParkingSpot findBestAvailableSpot(Vehicle vehicle) { //why vehicle
-        // Iterate through all parking levels.
+    public ParkingSpot findBestAvailableSpot(Vehicle vehicle) {
+
         ParkingSpot bestSpot = null;
+        int levelNumber = 0; //
+
         for (ParkingLevel level : levels) {
 
-            ParkingSpot availableSpot = level.findAvailableSpot(vehicle);
-            // Check if a suitable spot was found.
+            levelNumber++; //
+            System.out.println(
+                    "Searching Level " + levelNumber
+            );
 
-            // Skip this level if no suitable spot is found.
+
+            ParkingSpot availableSpot = level.findAvailableSpot(vehicle);
             if (availableSpot == null) {
                 continue;
             }
 
             if (bestSpot == null) { //the first value
                 bestSpot = availableSpot;
-            } else if (availableSpot.getSize().ordinal() < bestSpot.getSize().ordinal()) { //                //    // Compare the current spot with the best spot found so far.
+            } else if (availableSpot.getSize().ordinal() < bestSpot.getSize().ordinal()) {
                 bestSpot = availableSpot;
             }
         }
@@ -46,16 +51,16 @@ public class ParkingLot {
             ParkingTicket ticket = new ParkingTicket(entryTime, bestSpot, vehicle.getType());
             return ticket;
         }
-        throw new IllegalStateException("Parking failed"); // We throw an exception because this method returns a ParkingTicket, not a boolean. Returning false would cause a compile-time error.    }
+        throw new IllegalStateException("Parking failed");
     }
 
     public double unparkVehicle(ParkingTicket ticket) {
-        if (ticket == null) { //to secure the input
+        if (ticket == null) { // secure the input
             throw new IllegalArgumentException("Ticket cannot be null");
         }
-         ticket.recordExit();
+        ticket.recordExit();
         double fee = feeCalculator.calculateFee(ticket);
-        // ParkingSpot spot = ticket.getParkingSpot(); //Get the parking spot associated with this ticket, not any other spot.
+        // ParkingSpot spot = ticket.getParkingSpot();
 
         if (!ticket.getParkingSpot().vacate()) {
             throw new IllegalStateException("Failed to vacate parking spot");

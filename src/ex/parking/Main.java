@@ -10,8 +10,7 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        //Spots -> levels -> ParkingLot -> issue a Ticket -> End the Parking Session
-        // levels here ,System Configuration  //VehicleType type = new VehicleType(); // Compile Error
+        // System Configuration
 
         //System Setup / System Configuration،
         System.out.println("Parking System Started");
@@ -43,7 +42,6 @@ public class Main {
             parkingLevels.add(parkingLevel);
         }
 
-//Object Wiring
         FeeCalculator feeCalc = new FeeCalculator();
 
         ParkingLot parkingLot = new ParkingLot(parkingLevels, feeCalc); //ParkingLot parkingLot = new ParkingLot(feeCalc,parkingLevels);

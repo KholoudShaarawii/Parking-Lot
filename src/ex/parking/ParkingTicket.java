@@ -10,12 +10,12 @@ public class ParkingTicket { //It represents a parking session for a specific ve
     private TicketStatus ticketStatus;
     private VehicleType vehicleType;
 
-    private final ParkingSpot parkingSpot; //Why do we keep a reference to an object inside another object?
+    private final ParkingSpot parkingSpot;
 
     public ParkingTicket(LocalDateTime entryTime, ParkingSpot parkingSpot, VehicleType vehicleType) {
         this.parkingSpot = parkingSpot;
-        //noooooo LocalDateTime exitTime,
-        this.entryTime = entryTime; //const with initial value
+        // LocalDateTime exitTime xxx
+        this.entryTime = entryTime;
         this.ticketStatus = TicketStatus.ISSUED;
         this.vehicleType = vehicleType;
     }
@@ -43,10 +43,6 @@ public class ParkingTicket { //It represents a parking session for a specific ve
         }
         return Duration.between(entryTime, exitTime);
     }
-
-    // The constructor initializes the ticket when the vehicle enters.
-// At that moment, the exit time is unknown.
-// recordExit() records the exit time and marks the ticket as COMPLETED when the vehicle leaves.
 
     public ParkingSpot getParkingSpot() {
         return parkingSpot;
